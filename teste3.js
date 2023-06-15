@@ -1,15 +1,19 @@
-var data =  require("./fakeData");
+var data = require("./fakeData");
 
-module.exports = function(req, res) {
-  
-    var name =  req.query.name;
+const { checkPermission } = require("./middleware");
 
-    for(let i = 0; i < data.length;  i++) {
-        if(i.name == name) {
-            data[i] = null;
-        }
+module.exports = [
+  checkPermission("admin"),
+  function (req, res) {
+    var id = req.params.id;
+
+    var filteredData = data.filter((user) => user.id === id);
+
+    if (filteredData.length < data.length) {
+      data = filteredData;
+      res.send("success");
+    } else {
+      res.status(404).send("User not found");
     }
-
-    res.send("success");
-
-};
+  },
+];

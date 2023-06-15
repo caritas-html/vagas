@@ -1,24 +1,34 @@
-var data =  require("./fakeData");
+var fakeData = require("./fakeData");
+let userReadCount = {};
 
-const getUser = ( req, res, next ) => {
-    
-    var name =  req.query.name;
-
-    for(let i = 0; i < data.length;  i++) {
-        if(i.name == name) {
-            res.send(data[i]);
-        }
-    }
-
+getUsers = function (req, res) {
+  res.json(fakeData);
 };
 
-const getUsers = ( req, res, next ) => {
-    
-    res.send(data);
-    
+getUser = function (req, res) {
+  const userId = parseInt(req.params.id);
+
+  if (userId) {
+    if (userReadCount[userId]) {
+      userReadCount[userId]++;
+    } else {
+      userReadCount[userId] = 1;
+    }
+  }
+
+  const user = fakeData.find((user) => {
+    return user.id === userId;
+  });
+
+  if (user) {
+    res.json(user);
+  } else {
+    res.status(404).json({ error: "user not found" });
+  }
 };
 
 module.exports = {
-    getUser,
-    getUsers
+  getUsers,
+  getUser,
+  userReadCount,
 };

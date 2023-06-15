@@ -1,13 +1,22 @@
-var data =  require("./fakeData");
+var fakeData = require("./fakeData");
 
-module.exports =  function(req, res) {
-  
-    var id =  req.query.id;
+const { checkPermission } = require("./middleware");
 
-    const reg = data.find(d => id == id);
-    reg.name = req.body.name;
-    reg.job = req.body.job;
+module.exports = [
+  checkPermission("admin"),
+  function (req, res) {
+    const id = req.params.id;
+    const { name, job } = req.body;
 
-    res.send(reg);
+    const user = fakeData.find((user) => user.id == id);
 
-};
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    user.name = name;
+    user.job = job;
+
+    res.json(user);
+  },
+];
